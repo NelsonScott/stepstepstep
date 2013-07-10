@@ -1,14 +1,12 @@
 ### Introduction
 
-At this time, action-jackson is an experiment, but I hope that won't be the case for long.
-
-Rails before_filters don't take it far enough. What action-jackson allows you to do is define dependecies between your controller actions and before filters in the same way you do with rake tasks.
+Rails before_filters don't take it far enough. What stepstepstep allows you to do is define dependecies between your controller actions and before filters in the same way you do with rake tasks.
 
 ### Install
 
 Stick this in your GemFile.
 
-    gem 'action-jackson'
+    gem 'stepstepstep'
 
 ### Usage
 
@@ -17,34 +15,26 @@ Stick this in your GemFile.
 Might as well add it for all you controllers.
 
     class ApplicationController < ActionController::Base
-      extend ActionJackson::DSL  
+      include Stepstepstep
     end
     
 Or you can do it on a per controller basis if you insist.
 
     class MyController < ApplicationController
-      extend ActionJackson::DSL 
+      include Stepstepstep
     end
+
 
 #### Defineing Actions and Filters
 
 Define your actions like this within your controller.
 
-    action :index do
-    end
-    
-*Important Note:* Until I find a better way, you'll also have to add a call to `register_filters` to the bottom of any class that uses action-jackson. So the above in its entirety might look like this.
-
-    class MyController < ApplicationController
-      action :index do
-      end
-      
-      register_filters # Don't forget this call. It's Important!
+    step :index do
     end
     
 Need a before filter? Wire it up like this.
 
-    action :index => :load_user do
+    step :index => :load_user do
     end
     
     def load_user
@@ -64,23 +54,21 @@ which is equivalent to...
     
 But the fun doesn't stop there. We can define before filters for our before filters.
 
-    action :index => :load_user do
+    step :index => :load_user do
     end
     
-    filter :load_user => :some_other_filter do
+    step :load_user => :some_other_filter do
     end
     
     def some_other_filter
     end
     
-As you've probably guessed, `filter` acts just like `action` (as a matter of fact it's an alias, well at least for now...).
-
 Lastly, you can also define multiple dependencies with an Array and they'll be executed in the order they appear.
 
-    action :index => [:first_filter, :second_filter] do
+    step :index => [:first_filter, :second_filter] do
     end
   
-Keep in mind actions can depend on actions, filters can depend on filters, actions on filters, filters on actions, on and on and so forth. The dependency heirarchy can get very deep and complicated, but thanks to action-jackson your code doesn't have to.
+Keep in mind actions can depend on steps, filters can depend on filters, steps on filters, on and on and so forth. The dependency heirarchy can get very deep and complicated, but thanks to stepstepstep your code doesn't have to.
 
 ### Gotchas
 
@@ -93,9 +81,7 @@ If you're using `return` in your actions you'll want to switch it out with `next
 
 becomes...
 
-    action :index do
+    step :index do
       next unless param[:id]
       @item = Item.find(param[:id])
     end
-
-

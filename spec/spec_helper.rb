@@ -8,6 +8,9 @@ require 'rails/all'
 
 require 'rspec/rails'
 require 'pry-debugger'
+require File.join(ENV['HOME'], 'utils/ruby/irb.rb') rescue nil
 
 $:.push File.expand_path("../../lib", __FILE__)
-require 'action_jackson'
+require 'stepstepstep'
+
+Rails.logger ||= Logger.new($stderr)
