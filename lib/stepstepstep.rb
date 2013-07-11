@@ -21,12 +21,13 @@ module Stepstepstep
   end
 
   module ClassMethods
-    include TSort
+    def step(opts, opts2 = nil, &blk)
+      # adjust params
+      opts = opts2.merge(opts => nil) if opts2.is_a?(Hash)
 
-    def step(opts, &blk)
+      # prepare data
       __opts = {}
       if opts.is_a?(Hash)
-        puts "opts: #{opts}" if ENV['DEBUG_STEPSTEPSTE']
         [:only, :except, :if].each do |symbol|
           __opts[symbol] = opts.delete(symbol) if opts[symbol]
         end
@@ -41,6 +42,7 @@ module Stepstepstep
         raise "Please use Hash, Symbol, String for opts"
       end
 
+      # define method
       if self._steps_set.include?(step_name)
         if not self.instance_methods.include?(step_name)
           blk ||= (Proc.new {})
@@ -58,15 +60,10 @@ module Stepstepstep
 
       # 3. resort
       _steps = self._step_to_deps.tsort
-      if ENV['DEBUG_STEPSTEPSTE']
-      puts "deps: #{self._step_to_deps}"
-      puts "steps: #{_steps}"
-      puts
-      end
       _steps.each do |n1|
         # 4. reappend all
         if self.instance_methods.include?(n1)
-          puts "定义: #{n1}, #{self._before_filter_opts_hash}" if ENV['DEBUG_STEPSTEPSTE']
+          puts "filter to opts: #{n1}, #{self._before_filter_opts_hash}" if ENV['DEBUG_STEPSTEPSTE']
           self.send(:before_filter, n1, self._before_filter_opts_hash[n1])
         end
       end

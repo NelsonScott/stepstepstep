@@ -60,18 +60,19 @@ class SubController < FooController
   step :only_action => :two, :only => :another do
     @a << 3
   end
-  def index
-    super
-  end
 
   def another
     @a << 'another'
     render :inline => @a.inspect
   end
 end
+class Sub2Controller < SubController
+  step :one_point_three, :except => [:index]
+  step :two => [:one, :one_point_seven] # remember to connect the broken edges
+end
 
 Dummy::Application.routes.draw do
-  [:bar, :remove, :after_remove, :insert].each do |s|
+  [:bar, :remove, :after_remove, :insert, :sub2].each do |s|
     resources s
   end
   [:foo, :sub].each do |r|
@@ -126,5 +127,12 @@ describe SubController do
   it "only another" do
     get :another
     response.body.should == [1, 1.3, 2, 3, "another"].inspect
+  end
+end
+
+describe Sub2Controller do
+  it "one_point_three should be excepted" do
+    get :index
+    response.body.should == [1, 1.7, 2].inspect
   end
 end
