@@ -14,22 +14,26 @@ module Stepstepstep
   end
 
   included do
-    cattr_accessor :_steps_set, :_step_to_deps
+    cattr_accessor :_steps_set, :_step_to_deps, :_before_filter_opts_hash
     self._steps_set ||= Set.new
+    self._step_to_deps ||= StepsInTSort.new
+    self._before_filter_opts_hash ||= Hash.new { Hash.new }
   end
 
   module ClassMethods
     include TSort
 
     def step(opts, &blk)
-      before_filter_opts = {}
+      __opts = {}
       if opts.is_a?(Hash)
         puts "opts: #{opts}" if ENV['DEBUG_STEPSTEPSTE']
         [:only, :except, :if].each do |symbol|
-          before_filter_opts[symbol] = opts.delete(symbol) if opts[symbol]
+          __opts[symbol] = opts.delete(symbol) if opts[symbol]
         end
         step_name, __deps = opts.first
+        step_name = step_name.to_sym
         add_step_to_dep step_name, __deps
+        self._before_filter_opts_hash[step_name] = __opts
       elsif opts.is_a?(Symbol) || opts.is_a?(String)
         step_name = opts.to_sym
         add_step_to_dep step_name
@@ -39,13 +43,14 @@ module Stepstepstep
 
       if self._steps_set.include?(step_name) && !self.instance_methods.include?(step_name)
         blk ||= (Proc.new {})
+        puts "define_method( #{step_name}, #{blk})"
         define_method(step_name, blk)
       else
         Rails.logger.info "#{self.class.name}##{step_name} is already defined!"
       end
 
       # 1. append first
-      send(:before_filter, step_name.to_sym, before_filter_opts)
+      send(:before_filter, step_name, self._before_filter_opts_hash[step_name])
 
       # 2. extract all
       self._steps_set.each {|n1| self.skip_before_filter n1 }
@@ -60,8 +65,8 @@ module Stepstepstep
       _steps.each do |n1|
         # 4. reappend all
         if self.instance_methods.include?(n1)
-          puts "定义: #{n1}, #{before_filter_opts}"
-          self.send(:before_filter, n1, before_filter_opts)
+          puts "定义: #{n1}, #{self._before_filter_opts_hash}" if ENV['DEBUG_STEPSTEPSTE']
+          self.send(:before_filter, n1, self._before_filter_opts_hash[n1])
         end
       end
     end
@@ -73,9 +78,7 @@ module Stepstepstep
       deps = Array(deps).compact
       deps.each {|i| self._steps_set.add i }
 
-      self._step_to_deps ||= StepsInTSort.new
       self._step_to_deps[n1] = deps
-
     end
   end
 
