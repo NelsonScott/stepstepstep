@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "rake"
+  s.add_dependency "rails"
   s.add_dependency "actionpack"
   s.add_dependency "activesupport"
-  s.add_dependency "rspec-rails"
 
   s.add_development_dependency 'pry-debugger'
   s.add_development_dependency 'rspec-rails', '~> 2.0' 

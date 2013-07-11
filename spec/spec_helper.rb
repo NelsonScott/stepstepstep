@@ -14,3 +14,4 @@ $:.push File.expand_path("../../lib", __FILE__)
 require 'stepstepstep'
 
 Rails.logger ||= Logger.new($stderr)
+ENV['DEBUG_STEPSTEPSTE'] = 'true' if `whoami`.strip == 'mvj3'

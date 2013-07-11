@@ -1,60 +1,69 @@
 # encoding: UTF-8
 
-# TODO no return in step, cause it's a controller filter. Maybe inspect method source
-
-require 'digest/sha1'
-
-# 1. assign step's block to a method
-# 2. extract all steps from before_filters and resort!
-# 3. repush these steps back to before_filter
-
-# every step is a normal controller method
-# (register & adjust by score) & repeat
-
 module Stepstepstep
   extend ActiveSupport::Concern
 
   module ClassMethods
-    @@_step_to_ref_count ||= {}
     @@_steps_set ||= Set.new
 
     def step(opts, &blk)
-      name = Array(opts).flatten.first
-      @@_steps_set.add name
-      @@_step_to_ref_count[name] ||= 0
+      __before_filter_opts = {}
       if opts.is_a?(Hash)
-        # add to ref count
-        Array(opts[name]).each do |__step_name|
-          @@_step_to_ref_count[__step_name] ||= 0
-          @@_step_to_ref_count[__step_name] += 1
+        [:only, :except, :if].each do |symbol|
+          __before_filter_opts[symbol] = opts.delete(symbol) if opts[symbol]
         end
+        __name, __deps = opts.first
+        add_step_to_dep __name, __deps
+      elsif opts.is_a?(Symbol) || opts.is_a?(String)
+        __name = opts.to_sym
+      else
+        raise "Please use Hash, Symbol, String for opts"
       end
 
-      if @@_steps_set.include? name.to_sym
+      @@_steps_set.add __name
+
+      if @@_steps_set.include? __name
         blk ||= (Proc.new {})
-        define_method(name, blk)
+        define_method(__name, blk)
       else
-        Rails.logger.info "#{self.class.name}##{name} is already defined!"
+        Rails.logger.info "#{self.class.name}##{__name} is already defined!"
       end
 
       # 1. append first
       send(:before_filter, name.to_sym, :only => :index)
 
       # 2. extract all
-      # self.new._process_action_callbacks.map(&:filter).select do |f|
-      # self._process_action_callbacks.map(&:filter).select do |f|
-      @@_steps_set.each {|_name| self.skip_filter _name }
+      @@_steps_set.each {|n1| self.skip_filter n1 }
 
-      # 3. sort
-      @@_steps_set.sort do |a, b|
-        @@_step_to_ref_count[b] <=> @@_step_to_ref_count[a]
-      end.each do |_name|
+      # 3. resort
+      _steps = @@_steps_set.sort do |a, b|
+        (@@_step_to_deps[a] || Set.new).size <=> (@@_step_to_deps[b] || Set.new).size
+      end
+      if ENV['DEBUG_STEPSTEPSTE']
+      puts @@_step_to_deps.inspect
+      puts _steps.inspect
+      puts
+      end
+      _steps.each do |n1|
         # 4. reappend all
         opts = {}
-        self.send(:before_filter, _name, :only => :index)
+        self.send(:before_filter, n1, __before_filter_opts)
       end
     end
 
+    private
+    def add_step_to_dep n1, deps
+      @@_step_to_deps ||= {}
+
+      Array(deps).each do |__dep1|
+        @@_step_to_deps[n1] ||= Set.new
+        @@_step_to_deps[n1].add __dep1
+
+        @@_step_to_deps[__dep1].each do |__dep2|
+          add_step_to_dep n1, __dep2
+        end if @@_step_to_deps[__dep1]
+      end
+    end
   end
 
 end

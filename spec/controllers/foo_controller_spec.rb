@@ -31,7 +31,7 @@ class FooController < BarController
   step :one do
     @a = [1]
   end
-  step :one_point_seven => :one do
+  step :one_point_seven => :one_point_three do
     @a << 1.7
   end
 
@@ -42,19 +42,42 @@ class FooController < BarController
   end
 end
 
+class RemoveController < FooController
+  skip_filter :one_point_three
+end
+class InsertController < FooController
+  step :one_point_one => :one do
+    @a << 1.1
+  end
+end
+
 Dummy::Application.routes.draw do
-  resources :bar, :only => [:index]
-  resources :foo, :only => [:index]
+  resources :bar
+  resources :foo
+  resources :remove
+  resources :insert
 end
 
 describe FooController do
-  describe "GET #index" do
-    it "@a is sort correctly" do
-      callbacks = FooController.new._process_action_callbacks
-      puts "FooController.new._process_action_callbacks.size is #{callbacks.size}, filters are #{callbacks.map(&:filter)}"
+  it "@a is sort correctly" do
+    callbacks = FooController.new._process_action_callbacks
+    puts "FooController.new._process_action_callbacks.size is #{callbacks.size}, filters are #{callbacks.map(&:filter)}"
 
-      get :index
-      response.body.should == "[1, 1.3, 1.7, 2]"
-    end
+    get :index
+    response.body.should == "[1, 1.3, 1.7, 2]"
+  end
+end
+
+describe RemoveController do
+  it "remove one step" do
+    get :index
+    response.body.should == "[1, 1.7, 2]"
+  end
+end
+
+describe InsertController do
+  it "Insert one step" do
+    get :index
+    response.body.should match(/\[1, 1.3, 1.1, 1.7, 2\]|\[1, 1.1, 1.3, 1.7, 2\]/)
   end
 end
