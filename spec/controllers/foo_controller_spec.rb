@@ -40,7 +40,6 @@ class FooController < BarController
   end
 
   def another
-    # require 'pry-debugger'; binding.pry
     @a << 'another'
     render :inline => @a.inspect
   end
@@ -55,6 +54,7 @@ class InsertController < FooController
   step :one_point_one => :one do
     @a << 1.1
   end
+  step :one_point_three => :one_point_one
 end
 class SubController < FooController
   step :only_action => :two, :only => :another do
@@ -65,7 +65,6 @@ class SubController < FooController
   end
 
   def another
-    # require 'pry-debugger'; binding.pry
     @a << 'another'
     render :inline => @a.inspect
   end
@@ -90,42 +89,42 @@ describe FooController do
     puts "FooController.new._process_action_callbacks.size is #{callbacks.size}, filters are #{callbacks.map(&:filter)}"
 
     get :index
-    response.body.should == "[1, 1.3, 1.7, 2]"
+    response.body.should == [1, 1.3, 1.7, 2].inspect
   end
 
   it "@a should skip 1.7" do
     get :another
-    response.body.should == "[1, 1.3, 2, \"another\"]"
+    response.body.should == [1, 1.3, 2, "another"].inspect
   end
 end
 
 describe RemoveController do
   it "remove one step" do
     get :index
-    response.body.should == "[1, 1.7, 2]"
+    response.body.should == [1, 1.7, 2].inspect
   end
 end
 describe AfterRemoveController do
   it "after remove one step" do
     get :index
-    response.body.should == "[1, 1.3, 1.7, 2]"
+    response.body.should == [1, 1.3, 1.7, 2].inspect
   end
 end
 
 describe InsertController do
   it "Insert one step" do
     get :index
-    response.body.should match(/\[1, 1.3, 1.1, 1.7, 2\]|\[1, 1.1, 1.3, 1.7, 2\]/)
+    response.body.should == [1, 1.1, 1.3, 1.7, 2].inspect
   end
 end
 
 describe SubController do
   it "only should be skiped" do
     get :index
-    response.body.should == "[1, 1.3, 1.7, 2]"
+    response.body.should == [1, 1.3, 1.7, 2].inspect
   end
   it "only another" do
     get :another
-    response.body.should == "[1, 1.3, 2, 3, \"another\"]"
+    response.body.should == [1, 1.3, 2, 3, "another"].inspect
   end
 end

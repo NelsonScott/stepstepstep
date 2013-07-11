@@ -41,12 +41,13 @@ module Stepstepstep
         raise "Please use Hash, Symbol, String for opts"
       end
 
-      if self._steps_set.include?(step_name) && !self.instance_methods.include?(step_name)
-        blk ||= (Proc.new {})
-        puts "define_method( #{step_name}, #{blk})"
-        define_method(step_name, blk)
-      else
-        Rails.logger.info "#{self.class.name}##{step_name} is already defined!"
+      if self._steps_set.include?(step_name)
+        if not self.instance_methods.include?(step_name)
+          blk ||= (Proc.new {})
+          define_method(step_name, blk)
+        else
+          Rails.logger.info "#{self.class.name}##{step_name} is already defined!"
+        end
       end
 
       # 1. append first
