@@ -31,13 +31,17 @@ class FooController < BarController
   step :one do
     @a = [1]
   end
-  step :one_point_seven => :one_point_three do
+  step :one_point_seven => :one_point_three, :only => :index do
     @a << 1.7
   end
 
-  before_filter :two, :only => :index
-
   def index
+    render :inline => @a.inspect
+  end
+
+  def another
+    # require 'pry-debugger'; binding.pry
+    @a << 'another'
     render :inline => @a.inspect
   end
 end
@@ -45,17 +49,39 @@ end
 class RemoveController < FooController
   skip_filter :one_point_three
 end
+class AfterRemoveController < FooController
+end
 class InsertController < FooController
   step :one_point_one => :one do
     @a << 1.1
   end
 end
+class SubController < FooController
+  step :only_action => :two, :only => :another do
+    @a << 3
+  end
+  def index
+    super
+  end
+
+  def another
+    # require 'pry-debugger'; binding.pry
+    @a << 'another'
+    render :inline => @a.inspect
+  end
+end
 
 Dummy::Application.routes.draw do
-  resources :bar
-  resources :foo
-  resources :remove
-  resources :insert
+  [:bar, :remove, :after_remove, :insert].each do |s|
+    resources s
+  end
+  [:foo, :sub].each do |r|
+    resources r do
+      collection do
+        get :another
+      end
+    end
+  end
 end
 
 describe FooController do
@@ -66,6 +92,11 @@ describe FooController do
     get :index
     response.body.should == "[1, 1.3, 1.7, 2]"
   end
+
+  it "@a should skip 1.7" do
+    get :another
+    response.body.should == "[1, 1.3, 2, \"another\"]"
+  end
 end
 
 describe RemoveController do
@@ -74,10 +105,27 @@ describe RemoveController do
     response.body.should == "[1, 1.7, 2]"
   end
 end
+describe AfterRemoveController do
+  it "after remove one step" do
+    get :index
+    response.body.should == "[1, 1.3, 1.7, 2]"
+  end
+end
 
 describe InsertController do
   it "Insert one step" do
     get :index
     response.body.should match(/\[1, 1.3, 1.1, 1.7, 2\]|\[1, 1.1, 1.3, 1.7, 2\]/)
+  end
+end
+
+describe SubController do
+  it "only should be skiped" do
+    get :index
+    response.body.should == "[1, 1.3, 1.7, 2]"
+  end
+  it "only another" do
+    get :another
+    response.body.should == "[1, 1.3, 2, 3, \"another\"]"
   end
 end
