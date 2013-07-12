@@ -18,6 +18,13 @@ describe FooController do
   end
 end
 
+describe NextController do
+  it "skip if next in step method" do
+    get :index
+    response.body.should == [1, 1.3, 1.7, 2].inspect
+  end
+end
+
 describe RemoveController do
   it "remove one step" do
     get :index

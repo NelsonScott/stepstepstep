@@ -60,6 +60,14 @@ class FooController < BarController
   end
 end
 
+
+class NextController < FooController
+  step :test_next_with_three => :two do
+    next if true
+    @a << 3
+  end
+end
+
 class RemoveController < FooController
   skip_filter :one_point_three
 end
@@ -93,7 +101,7 @@ class RedirectToController < FooController
 end
 
 Dummy::Application.routes.draw do
-  [:bar, :remove, :after_remove, :insert, :sub2, :redirect_to].each do |s|
+  [:bar, :remove, :after_remove, :insert, :sub2, :redirect_to, :next].each do |s|
     resources s
   end
   [:foo, :sub].each do |r|
