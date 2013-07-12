@@ -3,7 +3,7 @@
 module Stepstepstep
   extend ActiveSupport::Concern
 
-  # copied from http://ruby-doc.org/stdlib-1.9.3/libdoc/tsort/rdoc/TSort.html
+  # Topological sorting using Tarjan's algorithm for strongly connected components.
   require 'tsort'
   class StepsInTSort < Hash
     include TSort

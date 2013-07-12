@@ -84,9 +84,11 @@ step :index => [:first_filter, :second_filter] do
 end
 ```
   
-Keep in mind actions can depend on steps, filters can depend on filters, steps on filters, on and on and so forth. The dependency heirarchy can get very deep and complicated, but thanks to stepstepstep your code doesn't have to.
+The dependency heirarchy is managed by topological sorting, see details at http://ruby-doc.org/stdlib-1.9.3/libdoc/tsort/rdoc/TSort.html
 
-### Gotchas
+
+Gotchas
+-------------------------------------------------
 
 If you're using `return` in your actions you'll want to switch it out with `next` otherwise you'll receive an error.
     
