@@ -12,17 +12,7 @@ gem 'stepstepstep'
 Usage
 -------------------------------------------------
 
-#### Include the DSL
-
-Or you can do it on a per controller basis if you insist.
-
-```ruby
-class MyController < ApplicationController
-  include Stepstepstep
-end
-```
-
-#### Defining steps
+#### Include the DSL && Defining steps
 
 ```ruby
 class FooController < ApplicationController
