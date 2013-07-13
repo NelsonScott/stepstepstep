@@ -34,6 +34,10 @@ class FooController < ApplicationController
   def index
     render :inline => @a.inspect # => [1, 1.3, 1.7, 2].inspect
   end
+
+  def another
+    render :inline => @a.inspect # => [1, 1.3, 2].inspect
+  end
 end
 ```
 
