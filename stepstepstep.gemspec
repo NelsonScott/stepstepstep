@@ -6,7 +6,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Blake Taylor", "David Chen"]
   s.email       = ["blakefrost@gmail.com", "mvjome@gmail.com"]
   s.homepage    = "https://github.com/eoecn/stepstepstep"
-  s.summary     = %q{DSL for defining dependencies between rails actions and before_filters.}
+  s.summary     = %q{DSL for defining before_filters's dependencies like rake tasks.}
+  s.description = File.read("README.markdown").split(/===+/)[0].strip
   s.license     = "MIT"
 
   s.files         = `git ls-files`.split("\n")
@@ -20,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "activesupport"
 
   s.add_development_dependency 'pry-debugger'
-  s.add_development_dependency 'rspec-rails', '~> 2.0' 
+  s.add_development_dependency 'rspec-rails', '~> 2.0'
   s.add_development_dependency 'guard-rspec'
 
 end

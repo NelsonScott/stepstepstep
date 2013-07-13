@@ -1,6 +1,6 @@
 Stepstepstep
 =================================================
-Rails before_filters don't take it far enough. What stepstepstep allows you to do is define dependecies between your controller actions and before filters in the same way you do with rake tasks.
+Rails before_filters don't take it far enough. What stepstepstep allows you to do is define before_filters's dependecies in the same way you do with rake tasks.
 
 Install
 -------------------------------------------------
@@ -45,4 +45,4 @@ At first, I thought maybe I could define several `proc`s in a single before_filt
 
 Then I got a deep understanding of the Rails controllers filters's implementation mechanism. Maybe `skip_before_filter` helped. In each `step`, I insert it first, extract all the inserted steps by `skip_before_filter`, then sort them by TSort(a topological sorting algorithm provided by Ruby standard library), and at last append them again to before_filters. It works, and all rspecs are passed.
 
-I renamed it from action_jackson to stepstepstep, because the DSL is only a `step` class method, which handles all the details. And most of the implementations were rewritten, then I added rspecs. Thanks Blake Taylor :)
+I renamed it from action_jackson to stepstepstep, because the DSL is only a `step` class method, which handles all the details. Most of the implementations were rewritten, and I added rspecs . Thanks Blake Taylor :)
