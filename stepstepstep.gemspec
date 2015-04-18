@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = "stepstepstep"
-  s.version     = "0.0.1"
+  s.version     = "0.0.2"
   s.authors     = ["Blake Taylor", "David Chen"]
   s.email       = ["blakefrost@gmail.com", "mvjome@gmail.com"]
   s.homepage    = "https://github.com/eoecn/stepstepstep"
