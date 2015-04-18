@@ -6,7 +6,7 @@ require 'spec_helper'
 describe FooController do
   it "@a is sort correctly" do
     callbacks = FooController.new._process_action_callbacks
-    puts "FooController.new._process_action_callbacks.size is #{callbacks.size}, filters are #{callbacks.map(&:filter)}"
+    puts "FooController.new._process_action_callbacks.size is #{callbacks.count}, filters are #{callbacks.map(&:filter)}"
 
     get :index
     response.body.should == [1, 1.3, 1.7, 2].inspect

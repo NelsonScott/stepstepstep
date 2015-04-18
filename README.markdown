@@ -1,4 +1,4 @@
-Stepstepstep
+Stepstepstep [![Build Status](https://travis-ci.org/mvj3/stepstepstep.png)](https://travis-ci.org/mvj3/stepstepstep)
 =================================================
 Rails before_filters don't take it far enough. What stepstepstep allows you to do is define before_filters's dependecies in the same way you do with rake tasks.
 

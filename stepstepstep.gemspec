@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "actionpack"
   s.add_dependency "activesupport"
 
-  s.add_development_dependency 'pry-debugger'
+  s.add_development_dependency 'pry-byebug'
   s.add_development_dependency 'rspec-rails', '~> 2.0'
   s.add_development_dependency 'guard-rspec'
 

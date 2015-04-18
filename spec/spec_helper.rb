@@ -1,26 +1,36 @@
 # encoding: UTF-8
 
-require 'active_support/core_ext'
+#require 'active_support/core_ext'
 require 'action_controller'
-require 'active_model'
-require 'rails/all'
+#require 'active_model'
+
+# copied from http://stackoverflow.com/questions/19078044/disable-activerecord-for-rails-4
+require "action_controller/railtie"
+#require "action_mailer/railtie"
+#require "sprockets/railtie"
+#require "rails/test_unit/railtie"
+
 
 
 require 'rspec/rails'
-require 'pry-debugger'
-require File.join(ENV['HOME'], 'utils/ruby/irb.rb') rescue nil
+require 'pry-byebug'
 
 $:.push File.expand_path("../../lib", __FILE__)
 require 'stepstepstep'
 
 Rails.logger ||= Logger.new($stderr)
 ENV['DEBUG_STEPSTEPSTE'] = 'true' if `whoami`.strip == 'mvj3'
+ENV['RAILS_ENV'] = 'test'
 
 
 # https://www.relishapp.com/rspec/rspec-rails/docs/controller-specs/engine-routes-for-controllers
 
 module Dummy
   class Application < Rails::Application
+
+    # overwrite to let tests passed
+    def validate_secret_key_config!; end
+    def key_generator;               end
   end
 end
 
